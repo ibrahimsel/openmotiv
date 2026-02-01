@@ -201,7 +201,7 @@ MISSION1_RESPONSE=$(curl -s -X POST "${API_URL}/api/v1/missions" \
     -d '{
         "name": "Warehouse Security Patrol",
         "description": "Patrol sectors A through D, check all entry points",
-        "priority": 1
+        "priority": "high"
     }')
 print_json "$MISSION1_RESPONSE"
 MISSION1_ID=$(echo "$MISSION1_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
@@ -214,7 +214,7 @@ MISSION2_RESPONSE=$(curl -s -X POST "${API_URL}/api/v1/missions" \
     -d '{
         "name": "Dock-to-Storage Transfer",
         "description": "Move incoming shipment from dock 3 to storage zone B",
-        "priority": 2
+        "priority": "normal"
     }')
 print_json "$MISSION2_RESPONSE"
 MISSION2_ID=$(echo "$MISSION2_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
