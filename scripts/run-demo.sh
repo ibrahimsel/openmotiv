@@ -3,8 +3,18 @@
 # RoboFleet Demo Script
 # Demonstrates all major features of the API
 #
+# Usage: ./scripts/run-demo.sh
+# Run from project root (where docker-compose.yml is located)
+#
 
 set -e
+
+# Ensure we're in the project root
+if [ ! -f "docker-compose.yml" ]; then
+    echo "Error: Run this script from the project root directory"
+    echo "  cd /path/to/robofleet && ./scripts/run-demo.sh"
+    exit 1
+fi
 
 # Colors
 RED='\033[0;31m'
@@ -97,7 +107,15 @@ REGISTER_RESPONSE=$(curl -s -X POST "${API_URL}/api/v1/auth/register" \
     -H "Content-Type: application/json" \
     -d "{\"email\": \"${DEMO_EMAIL}\", \"password\": \"${DEMO_PASSWORD}\"}")
 print_json "$REGISTER_RESPONSE"
+USER_ID=$(echo "$REGISTER_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
 print_success "User registered!"
+
+print_step "Promoting user to operator role..."
+docker-compose exec -T db psql -U robofleet -d robofleet -c \
+    "UPDATE users SET role = 'operator' WHERE id = '${USER_ID}';" > /dev/null 2>&1 \
+    || psql "${DATABASE_URL:-postgresql://robofleet:robofleet@localhost:5432/robofleet}" -c \
+    "UPDATE users SET role = 'operator' WHERE id = '${USER_ID}';" > /dev/null 2>&1
+print_success "User promoted to operator!"
 
 print_step "Logging in and obtaining JWT token..."
 LOGIN_RESPONSE=$(curl -s -X POST "${API_URL}/api/v1/auth/login" \
