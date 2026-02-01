@@ -51,3 +51,7 @@ htmlcov/
 
 # Local
 *.local
+
+# Celery
+celerybeat-schedule
+celerybeat-schedule.db

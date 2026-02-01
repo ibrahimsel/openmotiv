@@ -16,6 +16,31 @@ services:
       - .:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  celery-worker:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/robofleet
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+    command: celery -A app.worker worker --loglevel=info
+
+  celery-beat:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/robofleet
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - celery-worker
+    volumes:
+      - .:/app
+    command: celery -A app.worker beat --loglevel=info
+
   db:
     image: postgres:16-alpine
     environment:
