@@ -112,10 +112,10 @@ print_success "User registered!"
 
 print_step "Promoting user to operator role..."
 if docker compose exec -T db psql -U postgres -d robofleet -c \
-    "UPDATE users SET role = 'operator' WHERE id = '${USER_ID}';" > /dev/null 2>&1; then
+    "UPDATE users SET role = 'OPERATOR' WHERE id = '${USER_ID}';" > /dev/null 2>&1; then
     print_success "User promoted to operator!"
 elif psql "${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/robofleet}" -c \
-    "UPDATE users SET role = 'operator' WHERE id = '${USER_ID}';" > /dev/null 2>&1; then
+    "UPDATE users SET role = 'OPERATOR' WHERE id = '${USER_ID}';" > /dev/null 2>&1; then
     print_success "User promoted to operator!"
 else
     echo -e "${RED}Warning: Could not promote user. Robot creation may fail.${NC}"
